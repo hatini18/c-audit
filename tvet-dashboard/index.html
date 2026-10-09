@@ -3,18 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TVET Tracking Dashboard</title>
+  <title>ACTS Dashboard – CQARM PMSN</title>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
-      background: #f0f4f8;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f0f2f5;
       color: #1f2328;
-      min-height: 100vh;
+      font-size: 15px;
     }
 
-    /* ── Header ── */
+    /* ── HEADER ── */
     header {
       background: #1e3a5f;
       color: #fff;
@@ -23,455 +23,454 @@
       align-items: center;
       justify-content: space-between;
     }
-    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; }
-    header span { font-size: .85rem; opacity: .7; }
+    header h1 { font-size: 22px; letter-spacing: 1px; }
+    header span { font-size: 13px; opacity: 0.75; }
 
-    /* ── Layout ── */
-    main {
-      max-width: 1180px;
-      margin: 32px auto;
-      padding: 0 20px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 22px;
-    }
+    /* ── MAIN CONTAINER ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
 
-    /* span checklist full width */
-    .full-width { grid-column: 1 / -1; }
-
-    /* ── Card ── */
-    .card {
-      background: #ffffff;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .card-header {
-      padding: 14px 20px;
+    /* ── SUMMARY CARDS ── */
+    .cards {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid #e5e7eb;
+      gap: 20px;
+      margin-bottom: 32px;
     }
-    .card-header .icon {
-      width: 34px; height: 34px;
-      border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem;
+    .card {
+      flex: 1;
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px 28px;
+      border-left: 6px solid #1e3a5f;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
     }
-    .icon-blue  { background: #dbeafe; color: #1d4ed8; }
-    .icon-green { background: #dcfce7; color: #16a34a; }
-    .icon-purple{ background: #ede9fe; color: #7c3aed; }
-    .icon-amber { background: #fef9c3; color: #b45309; }
+    .card.audit  { border-color: #1e3a5f; }
+    .card.finding{ border-color: #d97706; }
+    .card.track  { border-color: #16a34a; }
 
-    .card-header h2 { font-size: .95rem; font-weight: 600; }
-    .card-body { padding: 16px 20px; }
-
-    /* ── Input row ── */
-    .input-row {
-      display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+    .card .label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #57606a;
+      margin-bottom: 8px;
     }
-    .input-row input, .input-row select {
-      flex: 1; min-width: 100px;
-      padding: 8px 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 7px;
-      font-size: .85rem;
-      outline: none;
-      transition: border-color .2s;
+    .card .number {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1;
     }
-    .input-row input:focus, .input-row select:focus { border-color: #3b82d4; }
-
-    /* ── Button ── */
-    .btn {
-      padding: 8px 14px;
-      border: none; border-radius: 7px;
-      font-size: .82rem; font-weight: 600;
-      cursor: pointer; transition: opacity .15s;
+    .card.audit  .number { color: #1e3a5f; }
+    .card.finding .number { color: #d97706; }
+    .card.track  .number { color: #16a34a; }
+    .card .sub {
+      font-size: 12px;
+      color: #57606a;
+      margin-top: 6px;
     }
-    .btn:hover { opacity: .85; }
-    .btn-blue   { background: #3b82d4; color: #fff; }
-    .btn-green  { background: #16a34a; color: #fff; }
-    .btn-purple { background: #7c3aed; color: #fff; }
-    .btn-amber  { background: #b45309; color: #fff; }
-    .btn-sm     { padding: 4px 10px; font-size: .75rem; }
 
-    /* ── Table ── */
-    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
-    thead th {
-      background: #f7f8fa;
-      padding: 8px 10px;
-      text-align: left;
+    /* ── SECTION TITLE ── */
+    .section-title {
+      font-size: 17px;
       font-weight: 600;
-      color: #57606a;
-      border-bottom: 1px solid #e5e7eb;
+      margin-bottom: 14px;
+      color: #1e3a5f;
     }
-    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
-    tbody tr:hover { background: #f7f8fa; }
-    tbody td { padding: 8px 10px; vertical-align: middle; }
-    tbody tr:last-child { border-bottom: none; }
 
-    /* ── Badge ── */
+    /* ── ADD FORM ── */
+    .form-panel {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr auto;
+      gap: 14px;
+      align-items: end;
+    }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 13px; color: #57606a; font-weight: 500; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      padding: 9px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: none;
+      background: #f9fafb;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #1e3a5f;
+      background: #fff;
+    }
+    .btn-add {
+      background: #1e3a5f;
+      color: #fff;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      height: 40px;
+      white-space: nowrap;
+    }
+    .btn-add:hover { background: #15304f; }
+
+    /* ── FILTER BAR ── */
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+    .filter-bar input {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      width: 260px;
+      background: #fff;
+    }
+    .filter-bar select {
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      background: #fff;
+    }
+
+    /* ── TABLE ── */
+    .table-panel {
+      background: #fff;
+      border-radius: 10px;
+      padding: 24px 28px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    thead th {
+      background: #f0f4f8;
+      color: #1e3a5f;
+      font-weight: 600;
+      padding: 11px 14px;
+      text-align: left;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    tbody tr { border-bottom: 1px solid #f0f0f0; }
+    tbody tr:hover { background: #f9fafb; }
+    tbody td { padding: 11px 14px; vertical-align: top; }
+
+    /* ── STATUS BADGES ── */
     .badge {
-      display: inline-block; padding: 2px 9px;
-      border-radius: 12px; font-size: .73rem; font-weight: 600;
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
     }
-    .badge-green  { background: #dcfce7; color: #16a34a; }
-    .badge-orange { background: #ffedd5; color: #c2410c; }
-    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+    .badge.open     { background: #fee2e2; color: #b91c1c; }
+    .badge.progress { background: #fef9c3; color: #92400e; }
+    .badge.closed   { background: #dcfce7; color: #15803d; }
 
-    /* ── Delete btn ── */
-    .del-btn {
-      background: none; border: none;
-      color: #d1d5db; cursor: pointer; font-size: 1rem;
-      padding: 2px 6px; border-radius: 5px;
-      transition: color .15s;
-    }
-    .del-btn:hover { color: #ef4444; }
-
-    /* ── Checklist ── */
-    .checklist { list-style: none; }
-    .checklist li {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 0; border-bottom: 1px solid #f0f0f0;
-      font-size: .88rem;
-    }
-    .checklist li:last-child { border-bottom: none; }
-    .checklist input[type="checkbox"] {
-      width: 17px; height: 17px; accent-color: #3b82d4; cursor: pointer; flex-shrink: 0;
-    }
-    .checklist label { flex: 1; cursor: pointer; transition: color .15s; }
-    .checklist li.done label { text-decoration: line-through; color: #a0aec0; }
-
-    .checklist-add {
-      display: flex; gap: 8px; margin-top: 12px;
-    }
-    .checklist-add input {
-      flex: 1; padding: 8px 10px;
-      border: 1px solid #d1d5db; border-radius: 7px;
-      font-size: .85rem; outline: none; transition: border-color .2s;
-    }
-    .checklist-add input:focus { border-color: #3b82d4; }
-
-    /* ── Empty state ── */
-    .empty { text-align: center; color: #a0aec0; font-size: .83rem; padding: 20px 0; }
-
-    /* ── Stats bar ── */
-    .stats { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
-    .stat-pill {
-      background: #f7f8fa;
+    /* ── DELETE BUTTON ── */
+    .btn-del {
+      background: none;
       border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      padding: 5px 14px;
-      font-size: .78rem;
-      color: #57606a;
+      color: #b91c1c;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      cursor: pointer;
     }
-    .stat-pill strong { color: #1f2328; }
+    .btn-del:hover { background: #fee2e2; }
 
-    @media(max-width:860px){
-      main { grid-template-columns: 1fr; }
-      .full-width { grid-column: 1; }
+    /* ── EMPTY STATE ── */
+    .empty { text-align: center; color: #57606a; padding: 32px 0; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      margin-top: 36px;
+      padding-bottom: 24px;
+      font-size: 12px;
+      color: #57606a;
     }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>📋 TVET Tracking Dashboard</h1>
-  <span id="clock"></span>
+  <h1>🗂 ACTS &nbsp;|&nbsp; CQARM PMSN</h1>
+  <span>Audit Compliance Tracking System</span>
 </header>
 
-<main>
+<div class="container">
 
-  <!-- ── STUDENTS CARD ── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="icon icon-blue">🎓</div>
-      <h2>Students</h2>
+  <!-- SUMMARY CARDS -->
+  <div class="cards">
+    <div class="card audit">
+      <div class="label">Total Audit</div>
+      <div class="number" id="countAudit">0</div>
+      <div class="sub">Audits recorded</div>
     </div>
-    <div class="card-body">
-      <div class="stats">
-        <div class="stat-pill">Total: <strong id="stud-count">0</strong></div>
-      </div>
-      <div class="input-row">
-        <input id="stud-name" type="text" placeholder="Full name" />
-        <input id="stud-reg"  type="text" placeholder="Reg. number" />
-      </div>
-      <div class="input-row">
-        <button class="btn btn-blue" onclick="addStudent()">+ Add Student</button>
-      </div>
-      <table>
-        <thead><tr><th>#</th><th>Name</th><th>Reg. No.</th><th></th></tr></thead>
-        <tbody id="stud-tbody"></tbody>
-      </table>
-      <div id="stud-empty" class="empty">No students added yet.</div>
+    <div class="card finding">
+      <div class="label">Total Finding</div>
+      <div class="number" id="countFinding">0</div>
+      <div class="sub">Non-conformances raised</div>
+    </div>
+    <div class="card track">
+      <div class="label">Track (Closed)</div>
+      <div class="number" id="countTrack">0</div>
+      <div class="sub">Findings resolved</div>
     </div>
   </div>
 
-  <!-- ── TASKS CARD ── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="icon icon-green">📝</div>
-      <h2>Tasks</h2>
+  <!-- ADD NEW FINDING FORM -->
+  <div class="form-panel">
+    <div class="section-title">➕ Add New Audit Finding</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Audit Reference</label>
+        <input type="text" id="inpRef" placeholder="e.g. CQARM/2024/01" />
+      </div>
+      <div class="form-group">
+        <label>Audit Finding</label>
+        <input type="text" id="inpFinding" placeholder="Describe the finding" />
+      </div>
+      <div class="form-group">
+        <label>Action Taken</label>
+        <input type="text" id="inpAction" placeholder="What was done to fix it" />
+      </div>
+      <div class="form-group">
+        <label>Evidence</label>
+        <input type="text" id="inpEvidence" placeholder="Document / file name" />
+      </div>
     </div>
-    <div class="card-body">
-      <div class="stats">
-        <div class="stat-pill">Total: <strong id="task-count">0</strong></div>
-      </div>
-      <div class="input-row">
-        <input id="task-title" type="text" placeholder="Assignment / Report title" />
-      </div>
-      <div class="input-row">
-        <select id="task-type">
-          <option value="Assignment">Assignment</option>
-          <option value="Report">Report</option>
+    <div style="display:flex; gap:14px; margin-top:14px; align-items:flex-end;">
+      <div class="form-group" style="flex:1">
+        <label>Status</label>
+        <select id="inpStatus">
+          <option value="open">Open</option>
+          <option value="progress">In Progress</option>
+          <option value="closed">Closed</option>
         </select>
-        <input id="task-date" type="date" />
       </div>
-      <div class="input-row">
-        <button class="btn btn-green" onclick="addTask()">+ Add Task</button>
+      <div class="form-group" style="flex:1">
+        <label>Date</label>
+        <input type="date" id="inpDate" />
       </div>
-      <table>
-        <thead><tr><th>Title</th><th>Type</th><th>Due Date</th><th></th></tr></thead>
-        <tbody id="task-tbody"></tbody>
-      </table>
-      <div id="task-empty" class="empty">No tasks added yet.</div>
+      <button class="btn-add" onclick="addRecord()">+ Add Record</button>
     </div>
   </div>
 
-  <!-- ── WORK STATUS CARD ── -->
-  <div class="card">
-    <div class="card-header">
-      <div class="icon icon-purple">📊</div>
-      <h2>Work Status</h2>
+  <!-- TABLE PANEL -->
+  <div class="table-panel">
+    <div class="section-title">📋 Audit Findings Record</div>
+
+    <!-- FILTER BAR -->
+    <div class="filter-bar">
+      <input type="text" id="searchBox" placeholder="🔍 Search finding or action…" oninput="renderTable()" />
+      <select id="filterStatus" onchange="renderTable()">
+        <option value="">All Status</option>
+        <option value="open">Open</option>
+        <option value="progress">In Progress</option>
+        <option value="closed">Closed</option>
+      </select>
     </div>
-    <div class="card-body">
-      <div class="stats">
-        <div class="stat-pill">Submitted: <strong id="ws-submitted">0</strong></div>
-        <div class="stat-pill">Pending: <strong id="ws-pending">0</strong></div>
-      </div>
-      <div class="input-row">
-        <select id="ws-student">
-          <option value="">Select student…</option>
-        </select>
-        <select id="ws-task">
-          <option value="">Select task…</option>
-        </select>
-      </div>
-      <div class="input-row">
-        <select id="ws-status">
-          <option value="Pending">Pending</option>
-          <option value="Submitted">Submitted</option>
-        </select>
-        <button class="btn btn-purple" onclick="addWorkStatus()">+ Add</button>
-      </div>
-      <table>
-        <thead><tr><th>Student</th><th>Task</th><th>Status</th><th></th></tr></thead>
-        <tbody id="ws-tbody"></tbody>
-      </table>
-      <div id="ws-empty" class="empty">No work status entries yet.</div>
-    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Audit Ref</th>
+          <th>Date</th>
+          <th>Audit Finding</th>
+          <th>Action Taken</th>
+          <th>Evidence</th>
+          <th>Status</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tableBody">
+      </tbody>
+    </table>
+    <div class="empty" id="emptyMsg" style="display:none">No records found.</div>
   </div>
 
-  <!-- ── CHECKLIST CARD (full width) ── -->
-  <div class="card full-width">
-    <div class="card-header">
-      <div class="icon icon-amber">✅</div>
-      <h2>Programme Checklist</h2>
-    </div>
-    <div class="card-body">
-      <div class="stats">
-        <div class="stat-pill">Done: <strong id="cl-done">0</strong> / <strong id="cl-total">0</strong></div>
-      </div>
-      <ul class="checklist" id="cl-list"></ul>
-      <div id="cl-empty" class="empty">No checklist items yet.</div>
-      <div class="checklist-add">
-        <input id="cl-input" type="text" placeholder="Add a checklist item…" onkeydown="if(event.key==='Enter')addCheckItem()" />
-        <button class="btn btn-amber" onclick="addCheckItem()">+ Add</button>
-      </div>
-    </div>
-  </div>
+</div>
 
-</main>
+<footer>ACTS – CQARM PMSN &nbsp;|&nbsp; TVET Audit Compliance Tracking System</footer>
 
 <script>
-  // ── Clock ──
-  function tick(){
-    const now = new Date();
-    document.getElementById('clock').textContent =
-      now.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}) +
-      '  ' + now.toLocaleTimeString('en-GB');
-  }
-  tick(); setInterval(tick, 1000);
-
-  // ── Data ──
-  let students = [];
-  let tasks    = [];
-  let statuses = [];
-  let checks   = [
-    { text: 'Enrol all students on the system', done: false },
-    { text: 'Upload course materials to portal', done: false },
-    { text: 'Distribute assignment briefs',      done: false },
-    { text: 'Collect and verify report submissions', done: false },
-    { text: 'Conduct mid-term assessments',      done: false },
+  // ── SAMPLE DATA (CQARM PMSN realistic) ──
+  let records = [
+    {
+      ref: "CQARM/2024/01",
+      date: "2024-03-10",
+      finding: "Lesson plan not updated to reflect latest NOSS revision",
+      action: "All lesson plans reviewed and updated by HOD",
+      evidence: "Lesson_Plan_Update_March2024.pdf",
+      status: "closed"
+    },
+    {
+      ref: "CQARM/2024/01",
+      date: "2024-03-10",
+      finding: "Assessment records missing for 3 trainees in Semester 1",
+      action: "Assessment records located and filed in student portfolio",
+      evidence: "Assessment_Record_Sem1.xlsx",
+      status: "closed"
+    },
+    {
+      ref: "CQARM/2024/02",
+      date: "2024-06-05",
+      finding: "Workshop safety checklist not signed before practical session",
+      action: "Safety checklist form revised; daily sign-off procedure enforced",
+      evidence: "Safety_Checklist_Jun2024.pdf",
+      status: "closed"
+    },
+    {
+      ref: "CQARM/2024/02",
+      date: "2024-06-05",
+      finding: "CQI meeting minutes not recorded for Q1 2024",
+      action: "Backdated minutes prepared and approved by Principal",
+      evidence: "CQI_Minutes_Q1_2024.docx",
+      status: "progress"
+    },
+    {
+      ref: "CQARM/2024/03",
+      date: "2024-09-12",
+      finding: "Trainer qualification record not filed in staff personal file",
+      action: "HR to collect and file all trainer certificates",
+      evidence: "Trainer_Cert_List.xlsx",
+      status: "progress"
+    },
+    {
+      ref: "CQARM/2024/03",
+      date: "2024-09-12",
+      finding: "Practical equipment calibration certificate expired",
+      action: "Calibration scheduled with vendor — pending appointment",
+      evidence: "Pending",
+      status: "open"
+    },
+    {
+      ref: "CQARM/2024/04",
+      date: "2024-11-20",
+      finding: "Student attendance record not consistent with class register",
+      action: "Under investigation by class teacher",
+      evidence: "Pending",
+      status: "open"
+    }
   ];
 
-  // ── Helpers ──
-  function renderEmpty(tbodyId, emptyId, data){
-    document.getElementById(emptyId).style.display = data.length ? 'none' : '';
-    document.querySelector(`#${tbodyId}`).closest('table').style.display = data.length ? '' : 'none';
+  // ── SET TODAY'S DATE AS DEFAULT ──
+  document.getElementById("inpDate").valueAsDate = new Date();
+
+  // ── ADD RECORD ──
+  function addRecord() {
+    const ref      = document.getElementById("inpRef").value.trim();
+    const finding  = document.getElementById("inpFinding").value.trim();
+    const action   = document.getElementById("inpAction").value.trim();
+    const evidence = document.getElementById("inpEvidence").value.trim();
+    const status   = document.getElementById("inpStatus").value;
+    const date     = document.getElementById("inpDate").value;
+
+    if (!ref || !finding || !action) {
+      alert("Please fill in Audit Reference, Finding, and Action Taken.");
+      return;
+    }
+
+    records.push({ ref, date, finding, action, evidence: evidence || "–", status });
+
+    // Clear form
+    document.getElementById("inpRef").value      = "";
+    document.getElementById("inpFinding").value  = "";
+    document.getElementById("inpAction").value   = "";
+    document.getElementById("inpEvidence").value = "";
+    document.getElementById("inpStatus").value   = "open";
+    document.getElementById("inpDate").valueAsDate = new Date();
+
+    renderTable();
   }
 
-  // ── Students ──
-  function addStudent(){
-    const name = document.getElementById('stud-name').value.trim();
-    const reg  = document.getElementById('stud-reg').value.trim();
-    if(!name || !reg) return alert('Please enter both name and registration number.');
-    students.push({ id: Date.now(), name, reg });
-    document.getElementById('stud-name').value = '';
-    document.getElementById('stud-reg').value  = '';
-    renderStudents();
-    refreshDropdowns();
-  }
-  function deleteStudent(id){
-    students = students.filter(s => s.id !== id);
-    renderStudents(); refreshDropdowns();
-  }
-  function renderStudents(){
-    const tb = document.getElementById('stud-tbody');
-    tb.innerHTML = students.map((s,i) =>
-      `<tr>
-        <td>${i+1}</td>
-        <td>${esc(s.name)}</td>
-        <td><span class="badge badge-blue">${esc(s.reg)}</span></td>
-        <td><button class="del-btn" onclick="deleteStudent(${s.id})">✕</button></td>
-      </tr>`
-    ).join('');
-    document.getElementById('stud-count').textContent = students.length;
-    renderEmpty('stud-tbody','stud-empty', students);
+  // ── DELETE RECORD ──
+  function deleteRecord(index) {
+    if (confirm("Remove this finding record?")) {
+      records.splice(index, 1);
+      renderTable();
+    }
   }
 
-  // ── Tasks ──
-  function addTask(){
-    const title = document.getElementById('task-title').value.trim();
-    const type  = document.getElementById('task-type').value;
-    const date  = document.getElementById('task-date').value;
-    if(!title) return alert('Please enter a task title.');
-    tasks.push({ id: Date.now(), title, type, date });
-    document.getElementById('task-title').value = '';
-    document.getElementById('task-date').value  = '';
-    renderTasks(); refreshDropdowns();
-  }
-  function deleteTask(id){
-    tasks = tasks.filter(t => t.id !== id);
-    renderTasks(); refreshDropdowns();
-  }
-  function renderTasks(){
-    const tb = document.getElementById('task-tbody');
-    tb.innerHTML = tasks.map(t =>
-      `<tr>
-        <td>${esc(t.title)}</td>
-        <td><span class="badge badge-blue">${esc(t.type)}</span></td>
-        <td>${t.date ? fmtDate(t.date) : '<span style="color:#a0aec0">—</span>'}</td>
-        <td><button class="del-btn" onclick="deleteTask(${t.id})">✕</button></td>
-      </tr>`
-    ).join('');
-    document.getElementById('task-count').textContent = tasks.length;
-    renderEmpty('task-tbody','task-empty', tasks);
+  // ── BADGE HTML ──
+  function badge(status) {
+    const map = {
+      open:     ['open',     'Open'],
+      progress: ['progress', 'In Progress'],
+      closed:   ['closed',   'Closed']
+    };
+    const [cls, label] = map[status] || ['open', status];
+    return `<span class="badge ${cls}">${label}</span>`;
   }
 
-  // ── Work Status ──
-  function addWorkStatus(){
-    const sId = document.getElementById('ws-student').value;
-    const tId = document.getElementById('ws-task').value;
-    const st  = document.getElementById('ws-status').value;
-    if(!sId || !tId) return alert('Please select a student and a task.');
-    statuses.push({ id: Date.now(), sId: Number(sId), tId: Number(tId), status: st });
-    renderWorkStatus();
-  }
-  function deleteStatus(id){
-    statuses = statuses.filter(s => s.id !== id);
-    renderWorkStatus();
-  }
-  function renderWorkStatus(){
-    const tb = document.getElementById('ws-tbody');
-    tb.innerHTML = statuses.map(s => {
-      const stud = students.find(x => x.id === s.sId);
-      const task = tasks.find(x => x.id === s.tId);
-      const badge = s.status === 'Submitted' ? 'badge-green' : 'badge-orange';
-      return `<tr>
-        <td>${stud ? esc(stud.name) : '<i>Deleted</i>'}</td>
-        <td>${task ? esc(task.title) : '<i>Deleted</i>'}</td>
-        <td><span class="badge ${badge}">${s.status}</span></td>
-        <td><button class="del-btn" onclick="deleteStatus(${s.id})">✕</button></td>
-      </tr>`;
-    }).join('');
-    const sub = statuses.filter(s => s.status === 'Submitted').length;
-    const pen = statuses.filter(s => s.status === 'Pending').length;
-    document.getElementById('ws-submitted').textContent = sub;
-    document.getElementById('ws-pending').textContent   = pen;
-    renderEmpty('ws-tbody','ws-empty', statuses);
+  // ── RENDER TABLE ──
+  function renderTable() {
+    const search = document.getElementById("searchBox").value.toLowerCase();
+    const filter = document.getElementById("filterStatus").value;
+
+    const filtered = records.filter((r, i) => {
+      const matchText = !search ||
+        r.finding.toLowerCase().includes(search) ||
+        r.action.toLowerCase().includes(search) ||
+        r.ref.toLowerCase().includes(search);
+      const matchStatus = !filter || r.status === filter;
+      return matchText && matchStatus;
+    });
+
+    // Count unique audit refs
+    const uniqueAudits = new Set(records.map(r => r.ref)).size;
+    document.getElementById("countAudit").textContent   = uniqueAudits;
+    document.getElementById("countFinding").textContent = records.length;
+    document.getElementById("countTrack").textContent   = records.filter(r => r.status === "closed").length;
+
+    const tbody = document.getElementById("tableBody");
+    const empty = document.getElementById("emptyMsg");
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+
+    // Map filtered rows back to original index for delete
+    tbody.innerHTML = filtered.map((r) => {
+      const origIndex = records.indexOf(r);
+      return `
+        <tr>
+          <td>${origIndex + 1}</td>
+          <td>${r.ref}</td>
+          <td>${r.date || "–"}</td>
+          <td>${r.finding}</td>
+          <td>${r.action}</td>
+          <td>${r.evidence}</td>
+          <td>${badge(r.status)}</td>
+          <td><button class="btn-del" onclick="deleteRecord(${origIndex})">✕</button></td>
+        </tr>`;
+    }).join("");
   }
 
-  // ── Dropdowns ──
-  function refreshDropdowns(){
-    const ss = document.getElementById('ws-student');
-    const ts = document.getElementById('ws-task');
-    const sv = ss.value, tv = ts.value;
-    ss.innerHTML = '<option value="">Select student…</option>' +
-      students.map(s => `<option value="${s.id}">${esc(s.name)} (${esc(s.reg)})</option>`).join('');
-    ts.innerHTML = '<option value="">Select task…</option>' +
-      tasks.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('');
-    if(sv) ss.value = sv;
-    if(tv) ts.value = tv;
-  }
-
-  // ── Checklist ──
-  function addCheckItem(){
-    const inp = document.getElementById('cl-input');
-    const text = inp.value.trim();
-    if(!text) return;
-    checks.push({ id: Date.now(), text, done: false });
-    inp.value = '';
-    renderChecklist();
-  }
-  function toggleCheck(id){
-    const item = checks.find(c => c.id === id);
-    if(item) item.done = !item.done;
-    renderChecklist();
-  }
-  function deleteCheck(id){
-    checks = checks.filter(c => c.id !== id);
-    renderChecklist();
-  }
-  function renderChecklist(){
-    const ul = document.getElementById('cl-list');
-    ul.innerHTML = checks.map(c =>
-      `<li class="${c.done ? 'done' : ''}" id="cli-${c.id}">
-        <input type="checkbox" id="chk-${c.id}" ${c.done ? 'checked' : ''} onchange="toggleCheck(${c.id})" />
-        <label for="chk-${c.id}">${esc(c.text)}</label>
-        <button class="del-btn" onclick="deleteCheck(${c.id})">✕</button>
-      </li>`
-    ).join('');
-    const done = checks.filter(c => c.done).length;
-    document.getElementById('cl-done').textContent  = done;
-    document.getElementById('cl-total').textContent = checks.length;
-    document.getElementById('cl-empty').style.display = checks.length ? 'none' : '';
-  }
-
-  // ── Utils ──
-  function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
-  function fmtDate(d){ const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
-
-  // ── Init ──
-  (function init(){
-    renderStudents(); renderTasks(); renderWorkStatus();
-    renderChecklist();
-    // hide table initially
-    document.getElementById('stud-tbody').closest('table').style.display = 'none';
-    document.getElementById('task-tbody').closest('table').style.display = 'none';
-    document.getElementById('ws-tbody').closest('table').style.display   = 'none';
-  })();
+  // ── INIT ──
+  renderTable();
 </script>
 </body>
 </html>
