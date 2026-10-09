@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TVET Tracking Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+      background: #f0f4f8;
+      color: #1f2328;
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #1e3a5f;
+      color: #fff;
+      padding: 18px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 700; letter-spacing: .5px; }
+    header span { font-size: .85rem; opacity: .7; }
+
+    /* ── Layout ── */
+    main {
+      max-width: 1180px;
+      margin: 32px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 22px;
+    }
+
+    /* span checklist full width */
+    .full-width { grid-column: 1 / -1; }
+
+    /* ── Card ── */
+    .card {
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .card-header .icon {
+      width: 34px; height: 34px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+    }
+    .icon-blue  { background: #dbeafe; color: #1d4ed8; }
+    .icon-green { background: #dcfce7; color: #16a34a; }
+    .icon-purple{ background: #ede9fe; color: #7c3aed; }
+    .icon-amber { background: #fef9c3; color: #b45309; }
+
+    .card-header h2 { font-size: .95rem; font-weight: 600; }
+    .card-body { padding: 16px 20px; }
+
+    /* ── Input row ── */
+    .input-row {
+      display: flex; gap: 8px; margin-bottom: 14px; flex-wrap: wrap;
+    }
+    .input-row input, .input-row select {
+      flex: 1; min-width: 100px;
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 7px;
+      font-size: .85rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .input-row input:focus, .input-row select:focus { border-color: #3b82d4; }
+
+    /* ── Button ── */
+    .btn {
+      padding: 8px 14px;
+      border: none; border-radius: 7px;
+      font-size: .82rem; font-weight: 600;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .btn:hover { opacity: .85; }
+    .btn-blue   { background: #3b82d4; color: #fff; }
+    .btn-green  { background: #16a34a; color: #fff; }
+    .btn-purple { background: #7c3aed; color: #fff; }
+    .btn-amber  { background: #b45309; color: #fff; }
+    .btn-sm     { padding: 4px 10px; font-size: .75rem; }
+
+    /* ── Table ── */
+    table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    thead th {
+      background: #f7f8fa;
+      padding: 8px 10px;
+      text-align: left;
+      font-weight: 600;
+      color: #57606a;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    tbody tr { border-bottom: 1px solid #f0f0f0; transition: background .15s; }
+    tbody tr:hover { background: #f7f8fa; }
+    tbody td { padding: 8px 10px; vertical-align: middle; }
+    tbody tr:last-child { border-bottom: none; }
+
+    /* ── Badge ── */
+    .badge {
+      display: inline-block; padding: 2px 9px;
+      border-radius: 12px; font-size: .73rem; font-weight: 600;
+    }
+    .badge-green  { background: #dcfce7; color: #16a34a; }
+    .badge-orange { background: #ffedd5; color: #c2410c; }
+    .badge-blue   { background: #dbeafe; color: #1d4ed8; }
+
+    /* ── Delete btn ── */
+    .del-btn {
+      background: none; border: none;
+      color: #d1d5db; cursor: pointer; font-size: 1rem;
+      padding: 2px 6px; border-radius: 5px;
+      transition: color .15s;
+    }
+    .del-btn:hover { color: #ef4444; }
+
+    /* ── Checklist ── */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 0; border-bottom: 1px solid #f0f0f0;
+      font-size: .88rem;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .checklist input[type="checkbox"] {
+      width: 17px; height: 17px; accent-color: #3b82d4; cursor: pointer; flex-shrink: 0;
+    }
+    .checklist label { flex: 1; cursor: pointer; transition: color .15s; }
+    .checklist li.done label { text-decoration: line-through; color: #a0aec0; }
+
+    .checklist-add {
+      display: flex; gap: 8px; margin-top: 12px;
+    }
+    .checklist-add input {
+      flex: 1; padding: 8px 10px;
+      border: 1px solid #d1d5db; border-radius: 7px;
+      font-size: .85rem; outline: none; transition: border-color .2s;
+    }
+    .checklist-add input:focus { border-color: #3b82d4; }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; color: #a0aec0; font-size: .83rem; padding: 20px 0; }
+
+    /* ── Stats bar ── */
+    .stats { display: flex; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+    .stat-pill {
+      background: #f7f8fa;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-size: .78rem;
+      color: #57606a;
+    }
+    .stat-pill strong { color: #1f2328; }
+
+    @media(max-width:860px){
+      main { grid-template-columns: 1fr; }
+      .full-width { grid-column: 1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>📋 TVET Tracking Dashboard</h1>
+  <span id="clock"></span>
+</header>
+
+<main>
+
+  <!-- ── STUDENTS CARD ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-blue">🎓</div>
+      <h2>Students</h2>
+    </div>
+    <div class="card-body">
+      <div class="stats">
+        <div class="stat-pill">Total: <strong id="stud-count">0</strong></div>
+      </div>
+      <div class="input-row">
+        <input id="stud-name" type="text" placeholder="Full name" />
+        <input id="stud-reg"  type="text" placeholder="Reg. number" />
+      </div>
+      <div class="input-row">
+        <button class="btn btn-blue" onclick="addStudent()">+ Add Student</button>
+      </div>
+      <table>
+        <thead><tr><th>#</th><th>Name</th><th>Reg. No.</th><th></th></tr></thead>
+        <tbody id="stud-tbody"></tbody>
+      </table>
+      <div id="stud-empty" class="empty">No students added yet.</div>
+    </div>
+  </div>
+
+  <!-- ── TASKS CARD ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-green">📝</div>
+      <h2>Tasks</h2>
+    </div>
+    <div class="card-body">
+      <div class="stats">
+        <div class="stat-pill">Total: <strong id="task-count">0</strong></div>
+      </div>
+      <div class="input-row">
+        <input id="task-title" type="text" placeholder="Assignment / Report title" />
+      </div>
+      <div class="input-row">
+        <select id="task-type">
+          <option value="Assignment">Assignment</option>
+          <option value="Report">Report</option>
+        </select>
+        <input id="task-date" type="date" />
+      </div>
+      <div class="input-row">
+        <button class="btn btn-green" onclick="addTask()">+ Add Task</button>
+      </div>
+      <table>
+        <thead><tr><th>Title</th><th>Type</th><th>Due Date</th><th></th></tr></thead>
+        <tbody id="task-tbody"></tbody>
+      </table>
+      <div id="task-empty" class="empty">No tasks added yet.</div>
+    </div>
+  </div>
+
+  <!-- ── WORK STATUS CARD ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="icon icon-purple">📊</div>
+      <h2>Work Status</h2>
+    </div>
+    <div class="card-body">
+      <div class="stats">
+        <div class="stat-pill">Submitted: <strong id="ws-submitted">0</strong></div>
+        <div class="stat-pill">Pending: <strong id="ws-pending">0</strong></div>
+      </div>
+      <div class="input-row">
+        <select id="ws-student">
+          <option value="">Select student…</option>
+        </select>
+        <select id="ws-task">
+          <option value="">Select task…</option>
+        </select>
+      </div>
+      <div class="input-row">
+        <select id="ws-status">
+          <option value="Pending">Pending</option>
+          <option value="Submitted">Submitted</option>
+        </select>
+        <button class="btn btn-purple" onclick="addWorkStatus()">+ Add</button>
+      </div>
+      <table>
+        <thead><tr><th>Student</th><th>Task</th><th>Status</th><th></th></tr></thead>
+        <tbody id="ws-tbody"></tbody>
+      </table>
+      <div id="ws-empty" class="empty">No work status entries yet.</div>
+    </div>
+  </div>
+
+  <!-- ── CHECKLIST CARD (full width) ── -->
+  <div class="card full-width">
+    <div class="card-header">
+      <div class="icon icon-amber">✅</div>
+      <h2>Programme Checklist</h2>
+    </div>
+    <div class="card-body">
+      <div class="stats">
+        <div class="stat-pill">Done: <strong id="cl-done">0</strong> / <strong id="cl-total">0</strong></div>
+      </div>
+      <ul class="checklist" id="cl-list"></ul>
+      <div id="cl-empty" class="empty">No checklist items yet.</div>
+      <div class="checklist-add">
+        <input id="cl-input" type="text" placeholder="Add a checklist item…" onkeydown="if(event.key==='Enter')addCheckItem()" />
+        <button class="btn btn-amber" onclick="addCheckItem()">+ Add</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  // ── Clock ──
+  function tick(){
+    const now = new Date();
+    document.getElementById('clock').textContent =
+      now.toLocaleDateString('en-GB',{weekday:'short',day:'2-digit',month:'short',year:'numeric'}) +
+      '  ' + now.toLocaleTimeString('en-GB');
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ── Data ──
+  let students = [];
+  let tasks    = [];
+  let statuses = [];
+  let checks   = [
+    { text: 'Enrol all students on the system', done: false },
+    { text: 'Upload course materials to portal', done: false },
+    { text: 'Distribute assignment briefs',      done: false },
+    { text: 'Collect and verify report submissions', done: false },
+    { text: 'Conduct mid-term assessments',      done: false },
+  ];
+
+  // ── Helpers ──
+  function renderEmpty(tbodyId, emptyId, data){
+    document.getElementById(emptyId).style.display = data.length ? 'none' : '';
+    document.querySelector(`#${tbodyId}`).closest('table').style.display = data.length ? '' : 'none';
+  }
+
+  // ── Students ──
+  function addStudent(){
+    const name = document.getElementById('stud-name').value.trim();
+    const reg  = document.getElementById('stud-reg').value.trim();
+    if(!name || !reg) return alert('Please enter both name and registration number.');
+    students.push({ id: Date.now(), name, reg });
+    document.getElementById('stud-name').value = '';
+    document.getElementById('stud-reg').value  = '';
+    renderStudents();
+    refreshDropdowns();
+  }
+  function deleteStudent(id){
+    students = students.filter(s => s.id !== id);
+    renderStudents(); refreshDropdowns();
+  }
+  function renderStudents(){
+    const tb = document.getElementById('stud-tbody');
+    tb.innerHTML = students.map((s,i) =>
+      `<tr>
+        <td>${i+1}</td>
+        <td>${esc(s.name)}</td>
+        <td><span class="badge badge-blue">${esc(s.reg)}</span></td>
+        <td><button class="del-btn" onclick="deleteStudent(${s.id})">✕</button></td>
+      </tr>`
+    ).join('');
+    document.getElementById('stud-count').textContent = students.length;
+    renderEmpty('stud-tbody','stud-empty', students);
+  }
+
+  // ── Tasks ──
+  function addTask(){
+    const title = document.getElementById('task-title').value.trim();
+    const type  = document.getElementById('task-type').value;
+    const date  = document.getElementById('task-date').value;
+    if(!title) return alert('Please enter a task title.');
+    tasks.push({ id: Date.now(), title, type, date });
+    document.getElementById('task-title').value = '';
+    document.getElementById('task-date').value  = '';
+    renderTasks(); refreshDropdowns();
+  }
+  function deleteTask(id){
+    tasks = tasks.filter(t => t.id !== id);
+    renderTasks(); refreshDropdowns();
+  }
+  function renderTasks(){
+    const tb = document.getElementById('task-tbody');
+    tb.innerHTML = tasks.map(t =>
+      `<tr>
+        <td>${esc(t.title)}</td>
+        <td><span class="badge badge-blue">${esc(t.type)}</span></td>
+        <td>${t.date ? fmtDate(t.date) : '<span style="color:#a0aec0">—</span>'}</td>
+        <td><button class="del-btn" onclick="deleteTask(${t.id})">✕</button></td>
+      </tr>`
+    ).join('');
+    document.getElementById('task-count').textContent = tasks.length;
+    renderEmpty('task-tbody','task-empty', tasks);
+  }
+
+  // ── Work Status ──
+  function addWorkStatus(){
+    const sId = document.getElementById('ws-student').value;
+    const tId = document.getElementById('ws-task').value;
+    const st  = document.getElementById('ws-status').value;
+    if(!sId || !tId) return alert('Please select a student and a task.');
+    statuses.push({ id: Date.now(), sId: Number(sId), tId: Number(tId), status: st });
+    renderWorkStatus();
+  }
+  function deleteStatus(id){
+    statuses = statuses.filter(s => s.id !== id);
+    renderWorkStatus();
+  }
+  function renderWorkStatus(){
+    const tb = document.getElementById('ws-tbody');
+    tb.innerHTML = statuses.map(s => {
+      const stud = students.find(x => x.id === s.sId);
+      const task = tasks.find(x => x.id === s.tId);
+      const badge = s.status === 'Submitted' ? 'badge-green' : 'badge-orange';
+      return `<tr>
+        <td>${stud ? esc(stud.name) : '<i>Deleted</i>'}</td>
+        <td>${task ? esc(task.title) : '<i>Deleted</i>'}</td>
+        <td><span class="badge ${badge}">${s.status}</span></td>
+        <td><button class="del-btn" onclick="deleteStatus(${s.id})">✕</button></td>
+      </tr>`;
+    }).join('');
+    const sub = statuses.filter(s => s.status === 'Submitted').length;
+    const pen = statuses.filter(s => s.status === 'Pending').length;
+    document.getElementById('ws-submitted').textContent = sub;
+    document.getElementById('ws-pending').textContent   = pen;
+    renderEmpty('ws-tbody','ws-empty', statuses);
+  }
+
+  // ── Dropdowns ──
+  function refreshDropdowns(){
+    const ss = document.getElementById('ws-student');
+    const ts = document.getElementById('ws-task');
+    const sv = ss.value, tv = ts.value;
+    ss.innerHTML = '<option value="">Select student…</option>' +
+      students.map(s => `<option value="${s.id}">${esc(s.name)} (${esc(s.reg)})</option>`).join('');
+    ts.innerHTML = '<option value="">Select task…</option>' +
+      tasks.map(t => `<option value="${t.id}">${esc(t.title)}</option>`).join('');
+    if(sv) ss.value = sv;
+    if(tv) ts.value = tv;
+  }
+
+  // ── Checklist ──
+  function addCheckItem(){
+    const inp = document.getElementById('cl-input');
+    const text = inp.value.trim();
+    if(!text) return;
+    checks.push({ id: Date.now(), text, done: false });
+    inp.value = '';
+    renderChecklist();
+  }
+  function toggleCheck(id){
+    const item = checks.find(c => c.id === id);
+    if(item) item.done = !item.done;
+    renderChecklist();
+  }
+  function deleteCheck(id){
+    checks = checks.filter(c => c.id !== id);
+    renderChecklist();
+  }
+  function renderChecklist(){
+    const ul = document.getElementById('cl-list');
+    ul.innerHTML = checks.map(c =>
+      `<li class="${c.done ? 'done' : ''}" id="cli-${c.id}">
+        <input type="checkbox" id="chk-${c.id}" ${c.done ? 'checked' : ''} onchange="toggleCheck(${c.id})" />
+        <label for="chk-${c.id}">${esc(c.text)}</label>
+        <button class="del-btn" onclick="deleteCheck(${c.id})">✕</button>
+      </li>`
+    ).join('');
+    const done = checks.filter(c => c.done).length;
+    document.getElementById('cl-done').textContent  = done;
+    document.getElementById('cl-total').textContent = checks.length;
+    document.getElementById('cl-empty').style.display = checks.length ? 'none' : '';
+  }
+
+  // ── Utils ──
+  function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+  function fmtDate(d){ const p=d.split('-'); return `${p[2]}/${p[1]}/${p[0]}`; }
+
+  // ── Init ──
+  (function init(){
+    renderStudents(); renderTasks(); renderWorkStatus();
+    renderChecklist();
+    // hide table initially
+    document.getElementById('stud-tbody').closest('table').style.display = 'none';
+    document.getElementById('task-tbody').closest('table').style.display = 'none';
+    document.getElementById('ws-tbody').closest('table').style.display   = 'none';
+  })();
+</script>
+</body>
+</html>
