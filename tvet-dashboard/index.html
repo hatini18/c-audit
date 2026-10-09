@@ -68,6 +68,23 @@
       margin-top: 6px;
     }
 
+    /* ── AUDIT TYPE BREAKDOWN (inside Audit card) ── */
+    .audit-types {
+      margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .atype-pill {
+      font-size: 11px;
+      padding: 2px 9px;
+      border-radius: 12px;
+      background: #e8eef6;
+      color: #1e3a5f;
+      font-weight: 600;
+    }
+    .atype-pill span { font-weight: 400; color: #57606a; }
+
     /* ── SECTION TITLE ── */
     .section-title {
       font-size: 17px;
@@ -86,7 +103,7 @@
     }
     .form-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr auto;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
       gap: 14px;
       align-items: end;
     }
@@ -223,6 +240,7 @@
       <div class="label">Total Audit</div>
       <div class="number" id="countAudit">0</div>
       <div class="sub">Audits recorded</div>
+      <div class="audit-types" id="auditTypeBreakdown"></div>
     </div>
     <div class="card finding">
       <div class="label">Total Finding</div>
@@ -239,11 +257,33 @@
   <!-- ADD NEW FINDING FORM -->
   <div class="form-panel">
     <div class="section-title">➕ Add New Audit Finding</div>
+    <!-- Row 1 -->
     <div class="form-grid">
+      <div class="form-group">
+        <label>Audit Type</label>
+        <select id="inpType">
+          <option value="ETAC">ETAC</option>
+          <option value="SIRIM">SIRIM</option>
+          <option value="EE">EE</option>
+          <option value="INTERNAL AUDIT">Internal Audit</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
       <div class="form-group">
         <label>Audit Reference</label>
         <input type="text" id="inpRef" placeholder="e.g. CQARM/2024/01" />
       </div>
+      <div class="form-group">
+        <label>PIC (Person In Charge)</label>
+        <input type="text" id="inpPic" placeholder="e.g. Ahmad bin Ali" />
+      </div>
+      <div class="form-group">
+        <label>Audit Date</label>
+        <input type="date" id="inpDate" />
+      </div>
+    </div>
+    <!-- Row 2 -->
+    <div class="form-grid" style="margin-top:14px;">
       <div class="form-group">
         <label>Audit Finding</label>
         <input type="text" id="inpFinding" placeholder="Describe the finding" />
@@ -253,10 +293,15 @@
         <input type="text" id="inpAction" placeholder="What was done to fix it" />
       </div>
       <div class="form-group">
+        <label>Due Date</label>
+        <input type="date" id="inpDue" />
+      </div>
+      <div class="form-group">
         <label>Evidence</label>
         <input type="text" id="inpEvidence" placeholder="Document / file name" />
       </div>
     </div>
+    <!-- Row 3 -->
     <div style="display:flex; gap:14px; margin-top:14px; align-items:flex-end;">
       <div class="form-group" style="flex:1">
         <label>Status</label>
@@ -265,10 +310,6 @@
           <option value="progress">In Progress</option>
           <option value="closed">Closed</option>
         </select>
-      </div>
-      <div class="form-group" style="flex:1">
-        <label>Date</label>
-        <input type="date" id="inpDate" />
       </div>
       <button class="btn-add" onclick="addRecord()">+ Add Record</button>
     </div>
@@ -280,7 +321,15 @@
 
     <!-- FILTER BAR -->
     <div class="filter-bar">
-      <input type="text" id="searchBox" placeholder="🔍 Search finding or action…" oninput="renderTable()" />
+      <input type="text" id="searchBox" placeholder="🔍 Search finding, PIC or action…" oninput="renderTable()" />
+      <select id="filterType" onchange="renderTable()">
+        <option value="">All Audit Types</option>
+        <option value="ETAC">ETAC</option>
+        <option value="SIRIM">SIRIM</option>
+        <option value="EE">EE</option>
+        <option value="INTERNAL AUDIT">Internal Audit</option>
+        <option value="OTHER">Other</option>
+      </select>
       <select id="filterStatus" onchange="renderTable()">
         <option value="">All Status</option>
         <option value="open">Open</option>
@@ -293,12 +342,15 @@
       <thead>
         <tr>
           <th>#</th>
+          <th>Audit Type</th>
           <th>Audit Ref</th>
           <th>Date</th>
           <th>Audit Finding</th>
+          <th>PIC</th>
           <th>Action Taken</th>
-          <th>Evidence</th>
+          <th>Due Date</th>
           <th>Status</th>
+          <th>Evidence</th>
           <th></th>
         </tr>
       </thead>
@@ -316,60 +368,60 @@
   // ── SAMPLE DATA (CQARM PMSN realistic) ──
   let records = [
     {
-      ref: "CQARM/2024/01",
-      date: "2024-03-10",
+      type: "ETAC", ref: "ETAC/2024/01", date: "2024-03-10",
       finding: "Lesson plan not updated to reflect latest NOSS revision",
+      pic: "Pn. Rohana bt Ismail",
       action: "All lesson plans reviewed and updated by HOD",
-      evidence: "Lesson_Plan_Update_March2024.pdf",
-      status: "closed"
+      due: "2024-04-10", evidence: "Lesson_Plan_Update_March2024.pdf", status: "closed"
     },
     {
-      ref: "CQARM/2024/01",
-      date: "2024-03-10",
+      type: "ETAC", ref: "ETAC/2024/01", date: "2024-03-10",
       finding: "Assessment records missing for 3 trainees in Semester 1",
+      pic: "En. Faizal bin Hamid",
       action: "Assessment records located and filed in student portfolio",
-      evidence: "Assessment_Record_Sem1.xlsx",
-      status: "closed"
+      due: "2024-04-10", evidence: "Assessment_Record_Sem1.xlsx", status: "closed"
     },
     {
-      ref: "CQARM/2024/02",
-      date: "2024-06-05",
+      type: "SIRIM", ref: "SIRIM/2024/01", date: "2024-06-05",
       finding: "Workshop safety checklist not signed before practical session",
+      pic: "En. Razif bin Othman",
       action: "Safety checklist form revised; daily sign-off procedure enforced",
-      evidence: "Safety_Checklist_Jun2024.pdf",
-      status: "closed"
+      due: "2024-07-05", evidence: "Safety_Checklist_Jun2024.pdf", status: "closed"
     },
     {
-      ref: "CQARM/2024/02",
-      date: "2024-06-05",
+      type: "INTERNAL AUDIT", ref: "INT/2024/02", date: "2024-06-05",
       finding: "CQI meeting minutes not recorded for Q1 2024",
+      pic: "Pn. Siti Aisyah bt Kamal",
       action: "Backdated minutes prepared and approved by Principal",
-      evidence: "CQI_Minutes_Q1_2024.docx",
-      status: "progress"
+      due: "2024-07-15", evidence: "CQI_Minutes_Q1_2024.docx", status: "progress"
     },
     {
-      ref: "CQARM/2024/03",
-      date: "2024-09-12",
+      type: "EE", ref: "EE/2024/01", date: "2024-09-12",
       finding: "Trainer qualification record not filed in staff personal file",
+      pic: "En. Hairul bin Azmi",
       action: "HR to collect and file all trainer certificates",
-      evidence: "Trainer_Cert_List.xlsx",
-      status: "progress"
+      due: "2024-10-12", evidence: "Trainer_Cert_List.xlsx", status: "progress"
     },
     {
-      ref: "CQARM/2024/03",
-      date: "2024-09-12",
+      type: "SIRIM", ref: "SIRIM/2024/02", date: "2024-09-12",
       finding: "Practical equipment calibration certificate expired",
+      pic: "En. Razif bin Othman",
       action: "Calibration scheduled with vendor — pending appointment",
-      evidence: "Pending",
-      status: "open"
+      due: "2024-10-30", evidence: "Pending", status: "open"
     },
     {
-      ref: "CQARM/2024/04",
-      date: "2024-11-20",
+      type: "INTERNAL AUDIT", ref: "INT/2024/03", date: "2024-11-20",
       finding: "Student attendance record not consistent with class register",
+      pic: "Pn. Norliza bt Yusuf",
       action: "Under investigation by class teacher",
-      evidence: "Pending",
-      status: "open"
+      due: "2024-12-20", evidence: "Pending", status: "open"
+    },
+    {
+      type: "OTHER", ref: "OTHER/2024/01", date: "2024-11-25",
+      finding: "Programme brochure does not reflect current curriculum",
+      pic: "En. Shahril bin Musa",
+      action: "Brochure revision in progress",
+      due: "2025-01-15", evidence: "Pending", status: "open"
     }
   ];
 
@@ -378,26 +430,31 @@
 
   // ── ADD RECORD ──
   function addRecord() {
+    const type     = document.getElementById("inpType").value;
     const ref      = document.getElementById("inpRef").value.trim();
+    const pic      = document.getElementById("inpPic").value.trim();
+    const date     = document.getElementById("inpDate").value;
     const finding  = document.getElementById("inpFinding").value.trim();
     const action   = document.getElementById("inpAction").value.trim();
+    const due      = document.getElementById("inpDue").value;
     const evidence = document.getElementById("inpEvidence").value.trim();
     const status   = document.getElementById("inpStatus").value;
-    const date     = document.getElementById("inpDate").value;
 
     if (!ref || !finding || !action) {
       alert("Please fill in Audit Reference, Finding, and Action Taken.");
       return;
     }
 
-    records.push({ ref, date, finding, action, evidence: evidence || "–", status });
+    records.push({ type, ref, date, finding, pic: pic || "–", action, due, evidence: evidence || "–", status });
 
     // Clear form
     document.getElementById("inpRef").value      = "";
+    document.getElementById("inpPic").value      = "";
     document.getElementById("inpFinding").value  = "";
     document.getElementById("inpAction").value   = "";
     document.getElementById("inpEvidence").value = "";
     document.getElementById("inpStatus").value   = "open";
+    document.getElementById("inpDue").value      = "";
     document.getElementById("inpDate").valueAsDate = new Date();
 
     renderTable();
@@ -422,25 +479,43 @@
     return `<span class="badge ${cls}">${label}</span>`;
   }
 
+  // ── AUDIT TYPE LABEL ──
+  const TYPE_LABELS = {
+    "ETAC": "ETAC", "SIRIM": "SIRIM", "EE": "EE",
+    "INTERNAL AUDIT": "Internal Audit", "OTHER": "Other"
+  };
+
   // ── RENDER TABLE ──
   function renderTable() {
-    const search = document.getElementById("searchBox").value.toLowerCase();
-    const filter = document.getElementById("filterStatus").value;
+    const search     = document.getElementById("searchBox").value.toLowerCase();
+    const filterSt   = document.getElementById("filterStatus").value;
+    const filterType = document.getElementById("filterType").value;
 
-    const filtered = records.filter((r, i) => {
+    const filtered = records.filter(r => {
       const matchText = !search ||
         r.finding.toLowerCase().includes(search) ||
         r.action.toLowerCase().includes(search) ||
-        r.ref.toLowerCase().includes(search);
-      const matchStatus = !filter || r.status === filter;
-      return matchText && matchStatus;
+        r.ref.toLowerCase().includes(search) ||
+        (r.pic || "").toLowerCase().includes(search);
+      const matchStatus = !filterSt   || r.status === filterSt;
+      const matchType   = !filterType || r.type   === filterType;
+      return matchText && matchStatus && matchType;
     });
 
-    // Count unique audit refs
+    // ── UPDATE SUMMARY CARDS ──
     const uniqueAudits = new Set(records.map(r => r.ref)).size;
     document.getElementById("countAudit").textContent   = uniqueAudits;
     document.getElementById("countFinding").textContent = records.length;
     document.getElementById("countTrack").textContent   = records.filter(r => r.status === "closed").length;
+
+    // ── AUDIT TYPE BREAKDOWN PILLS ──
+    const typeCounts = {};
+    records.forEach(r => { typeCounts[r.type] = (typeCounts[r.type] || 0) + 1; });
+    const order = ["ETAC","SIRIM","EE","INTERNAL AUDIT","OTHER"];
+    document.getElementById("auditTypeBreakdown").innerHTML = order
+      .filter(t => typeCounts[t])
+      .map(t => `<span class="atype-pill">${TYPE_LABELS[t]} <span>${typeCounts[t]}</span></span>`)
+      .join("");
 
     const tbody = document.getElementById("tableBody");
     const empty = document.getElementById("emptyMsg");
@@ -452,18 +527,20 @@
     }
     empty.style.display = "none";
 
-    // Map filtered rows back to original index for delete
-    tbody.innerHTML = filtered.map((r) => {
+    tbody.innerHTML = filtered.map(r => {
       const origIndex = records.indexOf(r);
       return `
         <tr>
           <td>${origIndex + 1}</td>
+          <td><strong>${TYPE_LABELS[r.type] || r.type}</strong></td>
           <td>${r.ref}</td>
           <td>${r.date || "–"}</td>
           <td>${r.finding}</td>
+          <td>${r.pic || "–"}</td>
           <td>${r.action}</td>
-          <td>${r.evidence}</td>
+          <td>${r.due || "–"}</td>
           <td>${badge(r.status)}</td>
+          <td>${r.evidence}</td>
           <td><button class="btn-del" onclick="deleteRecord(${origIndex})">✕</button></td>
         </tr>`;
     }).join("");
